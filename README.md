@@ -1,6 +1,19 @@
-# HIST 220 Study
+# HistoryMemorizer
 
-Quiz app for the course handouts. `npm run dev`, then open http://localhost:5173.
+Quiz app for the HIST 220 handouts.
+
+**Live:** https://joshuaculmer.github.io/HistoryMemorizer/
+
+Locally: `npm install`, then `npm run dev` and open http://localhost:5173.
+
+## Deploying
+
+`scripts/deploy.sh` builds the app and force-pushes the result to the `gh-pages` branch, which GitHub Pages serves. Two ways to run it, both hitting the same script so they cannot drift:
+
+- **On push.** `.github/workflows/deploy.yml` lints, builds and publishes on every push to `main`. Also runnable from the Actions tab.
+- **By hand.** `npm run deploy` from a clean checkout.
+
+The site lives under `/<repo>/` rather than a domain root, so `vite.config.ts` sets `base` from the repo name and `src/util.ts` exports `asset()` for deck images. Use `asset()` for anything you reference from `public/` — a bare `/file.png` resolves to the domain root and 404s in production. `npm run preview` serves the built site at the same subpath, so it reproduces production exactly.
 
 ## Material
 
