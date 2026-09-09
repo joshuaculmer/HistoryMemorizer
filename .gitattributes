@@ -1,0 +1,8 @@
+* text=auto eol=lf
+
+# Shell scripts must keep LF or the CI runner cannot execute them.
+*.sh text eol=lf
+
+*.png binary
+*.pdf binary
+*.docx binary
