@@ -62,3 +62,39 @@ export function asset(path: string): string {
   if (/^(https?:)?\/\//.test(path)) return path
   return import.meta.env.BASE_URL.replace(/\/$/, '') + '/' + path.replace(/^\//, '')
 }
+
+/** Number of just-shown items held back before an item may repeat. */
+export const COOLDOWN = 2
+
+/**
+ * Weighted draw without replacement. Items in `recent` are held back so the same
+ * prompt can't return within the cooldown, unless skipping them would leave too
+ * few to draw from.
+ */
+export function weightedSample<T extends { id: string }>(
+  items: readonly T[],
+  weight: (item: T) => number,
+  recent: readonly string[] = [],
+  n = 1,
+): T[] {
+  const blocked = new Set(recent)
+  const eligible = items.filter((item) => !blocked.has(item.id))
+  const rest = (eligible.length >= Math.max(n, 1) ? eligible : items).slice()
+
+  const out: T[] = []
+  while (out.length < n && rest.length) {
+    const weights = rest.map((item) => Math.max(weight(item), 0.001))
+    let roll = Math.random() * weights.reduce((sum, w) => sum + w, 0)
+    let index = rest.length - 1
+    for (let i = 0; i < rest.length; i++) {
+      roll -= weights[i]
+      if (roll <= 0) {
+        index = i
+        break
+      }
+    }
+    out.push(rest[index])
+    rest.splice(index, 1)
+  }
+  return out
+}

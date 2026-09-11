@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { MapCategory, MapDeck, MapPin } from '../types'
 import { getDeckStats, weightOf } from '../store'
-import { asset, matches, sample, shuffle } from '../util'
+import { COOLDOWN, asset, matches, sample, shuffle, weightedSample } from '../util'
 
 interface Props {
   deck: MapDeck
@@ -31,11 +31,17 @@ function accepted(pin: MapPin): string[] {
   return [pin.label, ...(pin.aliases ?? [])]
 }
 
-function pickPin(pins: MapPin[], deckId: string, focusMissed: boolean): MapPin {
-  if (!focusMissed) return pins[Math.floor(Math.random() * pins.length)]
-  const stats = getDeckStats(deckId)
-  const pool = pins.flatMap((pin) => Array<MapPin>(Math.ceil(weightOf(stats[pin.id]))).fill(pin))
-  return pool[Math.floor(Math.random() * pool.length)]
+/** Next pin plus the cooldown queue it leaves behind, advanced together as one state. */
+function pickPin(
+  pins: MapPin[],
+  deckId: string,
+  focusMissed: boolean,
+  recent: readonly string[],
+) {
+  const stats = focusMissed ? getDeckStats(deckId) : null
+  const weight = stats ? (pin: MapPin) => weightOf(stats[pin.id]) : () => 1
+  const pin = weightedSample(pins, weight, recent)[0]
+  return { pin, recent: [...recent, pin.id].slice(-COOLDOWN) }
 }
 
 export function MapQuiz({ deck, mode, focusMissed, categories, onScore }: Props) {
@@ -44,7 +50,8 @@ export function MapQuiz({ deck, mode, focusMissed, categories, onScore }: Props)
     [deck, categories],
   )
 
-  const [target, setTarget] = useState<MapPin>(() => pickPin(pins, deck.id, focusMissed))
+  const [state, setState] = useState(() => pickPin(pins, deck.id, focusMissed, []))
+  const target = state.pin
   const [ratio, setRatio] = useState(2200 / 1701)
   const [showAll, setShowAll] = useState(false)
   const [typed, setTyped] = useState('')
@@ -63,16 +70,25 @@ export function MapQuiz({ deck, mode, focusMissed, categories, onScore }: Props)
     setTyped('')
     setPicked(null)
     setResult(null)
-    setTarget(pickPin(pins, deck.id, focusMissed))
+    setState((prev) => pickPin(pins, deck.id, focusMissed, prev.recent))
   }, [pins, deck.id, focusMissed])
 
   const settle = (correct: boolean) => {
     setResult(correct ? 'right' : 'wrong')
+    if (!correct) setTyped('')
     onScore(target.id, correct)
   }
 
+  // A miss has to be typed out correctly before the next pin, so the name gets
+  // written at least once. The retype is practice, not a second graded attempt.
+  const retyping = mode === 'type' && result === 'wrong'
+
   const submitTyped = (event: React.FormEvent) => {
     event.preventDefault()
+    if (retyping) {
+      if (matches(typed, accepted(target))) next()
+      return
+    }
     if (result) return next()
     settle(matches(typed, accepted(target)))
   }
@@ -127,15 +143,16 @@ export function MapQuiz({ deck, mode, focusMissed, categories, onScore }: Props)
           {mode === 'type' ? (
             <form onSubmit={submitTyped}>
               <input
+                key={retyping ? 'retype' : 'answer'}
                 className="answer-input"
                 value={typed}
                 onChange={(event) => setTyped(event.target.value)}
-                placeholder="Type the name"
+                placeholder={retyping ? `Type "${target.label}" to continue` : 'Type the name'}
                 autoFocus
-                readOnly={result !== null}
+                readOnly={result === 'right'}
               />
               <button type="submit" className="primary">
-                {result ? 'Next' : 'Check'}
+                {retyping ? 'Continue' : result ? 'Next' : 'Check'}
               </button>
             </form>
           ) : (
@@ -172,6 +189,7 @@ export function MapQuiz({ deck, mode, focusMissed, categories, onScore }: Props)
             <div className={`verdict ${result}`}>
               {result === 'right' ? 'Correct — ' : 'Not quite — '}
               <strong>{target.label}</strong>
+              {retyping && <span className="faint"> · type it above to continue</span>}
               {mode === 'bank' && (
                 <button type="button" className="primary inline" onClick={next} autoFocus>
                   Next

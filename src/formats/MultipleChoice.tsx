@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { PairDeck, PairItem } from '../types'
 import { getDeckStats, weightOf } from '../store'
-import { sample, shuffle } from '../util'
+import { COOLDOWN, sample, shuffle, weightedSample } from '../util'
 
 interface Props {
   deck: PairDeck
@@ -13,12 +13,14 @@ interface Props {
 const CHOICES = 4
 
 /** Distractors drawn from chronological neighbours, so the year alone won't give it away. */
-function buildRound(deck: PairDeck, focusMissed: boolean): { target: PairItem; options: PairItem[] } {
+function buildRound(
+  deck: PairDeck,
+  focusMissed: boolean,
+  recent: readonly string[],
+): { target: PairItem; options: PairItem[] } {
   const stats = getDeckStats(deck.id)
-  const pool = focusMissed
-    ? deck.items.flatMap((item) => Array<PairItem>(Math.ceil(weightOf(stats[item.id]))).fill(item))
-    : deck.items
-  const target = pool[Math.floor(Math.random() * pool.length)]
+  const weight = focusMissed ? (item: PairItem) => weightOf(stats[item.id]) : () => 1
+  const target = weightedSample(deck.items, weight, recent)[0]
 
   const ordered = deck.items.every((i) => typeof i.sort === 'number')
     ? deck.items.slice().sort((x, y) => (x.sort ?? 0) - (y.sort ?? 0))
@@ -33,9 +35,16 @@ function buildRound(deck: PairDeck, focusMissed: boolean): { target: PairItem; o
   return { target, options: shuffle([target, ...distractors]) }
 }
 
+/** Round plus the cooldown queue it leaves behind, advanced together as one state. */
+function advance(deck: PairDeck, focusMissed: boolean, recent: readonly string[]) {
+  const round = buildRound(deck, focusMissed, recent)
+  return { round, recent: [...recent, round.target.id].slice(-COOLDOWN) }
+}
+
 export function MultipleChoice({ deck, direction, focusMissed, onScore }: Props) {
-  const [round, setRound] = useState(() => buildRound(deck, focusMissed))
+  const [state, setState] = useState(() => advance(deck, focusMissed, []))
   const [picked, setPicked] = useState<string | null>(null)
+  const round = state.round
 
   const promptSide = direction === 'a-b' ? 'a' : 'b'
   const answerSide = direction === 'a-b' ? 'b' : 'a'
@@ -43,7 +52,7 @@ export function MultipleChoice({ deck, direction, focusMissed, onScore }: Props)
 
   const next = useCallback(() => {
     setPicked(null)
-    setRound(buildRound(deck, focusMissed))
+    setState((prev) => advance(deck, focusMissed, prev.recent))
   }, [deck, focusMissed])
 
   const choose = (item: PairItem) => {

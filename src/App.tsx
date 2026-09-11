@@ -1,62 +1,73 @@
-import { useCallback, useState } from 'react'
-import './App.css'
-import { decks, countOf, formatsFor, itemIdsOf } from './registry'
-import { record, resetDeck, summarize } from './store'
-import type { Deck, FormatId, MapCategory } from './types'
-import { MultipleChoice } from './formats/MultipleChoice'
-import { Matching } from './formats/Matching'
-import { Timeline } from './formats/Timeline'
-import { MapQuiz } from './formats/MapQuiz'
-import { MapEditor } from './formats/MapEditor'
-import { Progress } from './components/Progress'
+import { useCallback, useState } from "react";
+import "./App.css";
+import { decks, countOf, formatsFor, itemIdsOf } from "./registry";
+import { record, resetDeck, summarize } from "./store";
+import type { Deck, FormatId, MapCategory } from "./types";
+import { MultipleChoice } from "./formats/MultipleChoice";
+import { Matching } from "./formats/Matching";
+import { Timeline } from "./formats/Timeline";
+import { MapQuiz } from "./formats/MapQuiz";
+import { MapEditor } from "./formats/MapEditor";
+import { Progress } from "./components/Progress";
 
-type View = 'quiz' | 'progress' | 'edit'
+type View = "quiz" | "progress" | "edit";
 
-const ALL_CATEGORIES: MapCategory[] = ['territory', 'state', 'city', 'river', 'feature']
+const ALL_CATEGORIES: MapCategory[] = [
+  "territory",
+  "state",
+  "city",
+  "river",
+  "feature",
+];
 
 const CATEGORY_LABEL: Record<MapCategory, string> = {
-  territory: 'Territories',
-  state: 'States',
-  city: 'Cities',
-  river: 'Rivers',
-  feature: 'Landmarks',
-}
+  territory: "Territories",
+  state: "States",
+  city: "Cities",
+  river: "Rivers",
+  feature: "Landmarks",
+};
 
 export default function App() {
-  const [deck, setDeck] = useState<Deck | null>(null)
-  const [format, setFormat] = useState<FormatId | null>(null)
-  const [view, setView] = useState<View>('quiz')
-  const [focusMissed, setFocusMissed] = useState(false)
-  const [categories, setCategories] = useState<Set<MapCategory>>(new Set(ALL_CATEGORIES))
-  const [session, setSession] = useState({ right: 0, wrong: 0 })
+  const [deck, setDeck] = useState<Deck | null>(null);
+  const [format, setFormat] = useState<FormatId | null>(null);
+  const [view, setView] = useState<View>("quiz");
+  const [focusMissed, setFocusMissed] = useState(true);
+  const [categories, setCategories] = useState<Set<MapCategory>>(
+    new Set(ALL_CATEGORIES),
+  );
+  const [session, setSession] = useState({ right: 0, wrong: 0 });
 
   const onScore = useCallback(
     (itemId: string, correct: boolean) => {
-      if (!deck) return
-      record(deck.id, itemId, correct)
-      setSession((s) => ({ right: s.right + (correct ? 1 : 0), wrong: s.wrong + (correct ? 0 : 1) }))
+      if (!deck) return;
+      record(deck.id, itemId, correct);
+      setSession((s) => ({
+        right: s.right + (correct ? 1 : 0),
+        wrong: s.wrong + (correct ? 0 : 1),
+      }));
     },
     [deck],
-  )
+  );
 
   // Read fresh each render so the all-time line tracks the session as it goes.
-  const summary = deck ? summarize(deck.id, itemIdsOf(deck)) : null
+  const summary = deck ? summarize(deck.id, itemIdsOf(deck)) : null;
 
   const openDeck = (next: Deck) => {
-    setDeck(next)
-    setFormat(null)
-    setView('quiz')
-    setSession({ right: 0, wrong: 0 })
-  }
+    setDeck(next);
+    setFormat(null);
+    setView("quiz");
+    setSession({ right: 0, wrong: 0 });
+  };
 
   const toggleCategory = (category: MapCategory) => {
     setCategories((current) => {
-      const next = new Set(current)
-      if (next.has(category)) next.delete(category)
-      else next.add(category)
-      return next.size ? next : current
-    })
-  }
+      const next = new Set(current);
+      if (next.has(category)) next.delete(category);
+      else next.add(category);
+      return next.size ? next : current;
+    });
+  };
 
   if (!deck) {
     return (
@@ -67,26 +78,32 @@ export default function App() {
         </header>
         <div className="cards">
           {decks.map((entry) => {
-            const stat = summarize(entry.id, itemIdsOf(entry))
+            const stat = summarize(entry.id, itemIdsOf(entry));
             return (
-              <button key={entry.id} type="button" className="card" onClick={() => openDeck(entry)}>
+              <button
+                key={entry.id}
+                type="button"
+                className="card"
+                onClick={() => openDeck(entry)}
+              >
                 <h2>{entry.title}</h2>
                 <p>{entry.subtitle}</p>
                 <p className="meta">
                   {countOf(entry)} items · {formatsFor(entry).length} formats
-                  {stat.attempted > 0 && ` · ${Math.round(stat.accuracy * 100)}% lifetime`}
+                  {stat.attempted > 0 &&
+                    ` · ${Math.round(stat.accuracy * 100)}% lifetime`}
                 </p>
               </button>
-            )
+            );
           })}
         </div>
       </main>
-    )
+    );
   }
 
-  const formats = formatsFor(deck)
-  const active = formats.find((f) => f.id === format)
-  const quizzing = view === 'quiz'
+  const formats = formatsFor(deck);
+  const active = formats.find((f) => f.id === format);
+  const quizzing = view === "quiz";
 
   return (
     <main className="shell">
@@ -103,11 +120,11 @@ export default function App() {
           <button
             key={entry.id}
             type="button"
-            className={`fmt${entry.id === format && quizzing ? ' on' : ''}`}
+            className={`fmt${entry.id === format && quizzing ? " on" : ""}`}
             onClick={() => {
-              setFormat(entry.id)
-              setView('quiz')
-              setSession({ right: 0, wrong: 0 })
+              setFormat(entry.id);
+              setView("quiz");
+              setSession({ right: 0, wrong: 0 });
             }}
             title={entry.blurb}
           >
@@ -119,16 +136,16 @@ export default function App() {
 
         <button
           type="button"
-          className={`fmt ghost${view === 'progress' ? ' on' : ''}`}
-          onClick={() => setView(view === 'progress' ? 'quiz' : 'progress')}
+          className={`fmt ghost${view === "progress" ? " on" : ""}`}
+          onClick={() => setView(view === "progress" ? "quiz" : "progress")}
         >
           Progress
         </button>
-        {deck.kind === 'map' && (
+        {deck.kind === "map" && (
           <button
             type="button"
-            className={`fmt ghost${view === 'edit' ? ' on' : ''}`}
-            onClick={() => setView(view === 'edit' ? 'quiz' : 'edit')}
+            className={`fmt ghost${view === "edit" ? " on" : ""}`}
+            onClick={() => setView(view === "edit" ? "quiz" : "edit")}
           >
             Edit pins
           </button>
@@ -144,10 +161,10 @@ export default function App() {
                 checked={focusMissed}
                 onChange={(event) => setFocusMissed(event.target.checked)}
               />
-              Favor items I miss
+              Favor missed and new items
             </label>
 
-            {deck.kind === 'map' &&
+            {deck.kind === "map" &&
               ALL_CATEGORIES.map((category) => (
                 <label key={category} className="toggle">
                   <input
@@ -168,24 +185,25 @@ export default function App() {
         </span>
         {summary && summary.attempted > 0 && (
           <span className="score muted">
-            All time {Math.round(summary.accuracy * 100)}% · {summary.shaky} shaky
+            All time {Math.round(summary.accuracy * 100)}% · {summary.shaky}{" "}
+            shaky
           </span>
         )}
         <button
           type="button"
           className="reset"
           onClick={() => {
-            resetDeck(deck.id)
-            setSession({ right: 0, wrong: 0 })
+            resetDeck(deck.id);
+            setSession({ right: 0, wrong: 0 });
           }}
         >
           Reset progress
         </button>
       </div>
 
-      {view === 'progress' ? (
+      {view === "progress" ? (
         <Progress deck={deck} />
-      ) : view === 'edit' && deck.kind === 'map' ? (
+      ) : view === "edit" && deck.kind === "map" ? (
         <MapEditor deck={deck} />
       ) : !active ? (
         <div className="picker">
@@ -201,16 +219,21 @@ export default function App() {
             </button>
           ))}
         </div>
-      ) : deck.kind === 'pairs' ? (
-        active.id === 'matching' ? (
-          <Matching key="m" deck={deck} focusMissed={focusMissed} onScore={onScore} />
-        ) : active.id === 'timeline' ? (
+      ) : deck.kind === "pairs" ? (
+        active.id === "matching" ? (
+          <Matching
+            key="m"
+            deck={deck}
+            focusMissed={focusMissed}
+            onScore={onScore}
+          />
+        ) : active.id === "timeline" ? (
           <Timeline key="t" deck={deck} onScore={onScore} />
         ) : (
           <MultipleChoice
             key={active.id}
             deck={deck}
-            direction={active.id === 'mc-a-b' ? 'a-b' : 'b-a'}
+            direction={active.id === "mc-a-b" ? "a-b" : "b-a"}
             focusMissed={focusMissed}
             onScore={onScore}
           />
@@ -219,12 +242,13 @@ export default function App() {
         <MapQuiz
           key={active.id}
           deck={deck}
-          mode={active.id === 'map-bank' ? 'bank' : 'type'}
+          mode={active.id === "map-bank" ? "bank" : "type"}
           focusMissed={focusMissed}
           categories={categories}
           onScore={onScore}
         />
       )}
     </main>
-  )
+  );
 }
+

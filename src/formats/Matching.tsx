@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import type { PairDeck, PairItem } from '../types'
 import { getDeckStats, weightOf } from '../store'
-import { shuffle } from '../util'
+import { shuffle, weightedSample } from '../util'
 
 interface Props {
   deck: PairDeck
@@ -11,15 +11,15 @@ interface Props {
 
 const ROUND_SIZE = 8
 
-function buildRound(deck: PairDeck, focusMissed: boolean): PairItem[] {
-  const stats = getDeckStats(deck.id)
-  const ranked = focusMissed
-    ? deck.items
-        .map((item) => ({ item, key: Math.random() / weightOf(stats[item.id]) }))
-        .sort((x, y) => x.key - y.key)
-        .map((entry) => entry.item)
-    : shuffle(deck.items)
-  return ranked.slice(0, ROUND_SIZE)
+/** Draws a round, holding back the items just played so a board doesn't repeat. */
+function buildRound(
+  deck: PairDeck,
+  focusMissed: boolean,
+  recent: readonly string[] = [],
+): PairItem[] {
+  const stats = focusMissed ? getDeckStats(deck.id) : null
+  const weight = stats ? (item: PairItem) => weightOf(stats[item.id]) : () => 1
+  return weightedSample(deck.items, weight, recent, ROUND_SIZE)
 }
 
 export function Matching({ deck, focusMissed, onScore }: Props) {
@@ -31,14 +31,14 @@ export function Matching({ deck, focusMissed, onScore }: Props) {
   const [missed, setMissed] = useState<string | null>(null)
 
   const restart = useCallback(() => {
-    const fresh = buildRound(deck, focusMissed)
+    const fresh = buildRound(deck, focusMissed, items.map((item) => item.id))
     setItems(fresh)
     setLeft(shuffle(fresh))
     setRight(shuffle(fresh))
     setSelected(null)
     setSolved([])
     setMissed(null)
-  }, [deck, focusMissed])
+  }, [deck, focusMissed, items])
 
   const pickRight = (id: string) => {
     if (!selected || solved.includes(id)) return

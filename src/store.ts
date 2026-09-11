@@ -101,6 +101,8 @@ export interface ItemStat {
   lastSeen: number
   /** Wrong answers among the five most recent attempts. */
   recentWrong: number
+  /** Correct answers at the end of the log, unbroken. */
+  correctStreak: number
 }
 
 const RECENT = 5
@@ -113,8 +115,16 @@ export function statOf(attempts: readonly Attempt[] | undefined): ItemStat | und
     if (attempt.c) right++
     else wrong++
   }
+  let correctStreak = 0
+  for (let i = attempts.length - 1; i >= 0 && attempts[i].c; i--) correctStreak++
   const recentWrong = attempts.slice(-RECENT).filter((a) => !a.c).length
-  return { right, wrong, lastSeen: attempts[attempts.length - 1].t, recentWrong }
+  return {
+    right,
+    wrong,
+    lastSeen: attempts[attempts.length - 1].t,
+    recentWrong,
+    correctStreak,
+  }
 }
 
 export function getDeckStats(deckId: string): Record<string, ItemStat> {
@@ -126,13 +136,24 @@ export function getDeckStats(deckId: string): Record<string, ItemStat> {
   return out
 }
 
-/** Higher score means the item is shakier and deserves to come up sooner. */
+/** Weight an item gets before it has ever been answered. */
+export const UNSEEN_WEIGHT = 12
+
+/** Floor, so a mastered item still surfaces occasionally. */
+const MIN_WEIGHT = 0.1
+
+/**
+ * Higher score means the item is shakier and deserves to come up sooner. Three
+ * things move it: unseen items lead, recent misses multiply the weight, and each
+ * consecutive correct answer halves it so mastered items fade out.
+ */
 export function weightOf(stat: ItemStat | undefined): number {
-  if (!stat) return 3
-  const attempts = stat.right + stat.wrong
-  if (attempts === 0) return 3
-  // Recent misses dominate, so an item you just fixed stops crowding the queue.
-  return 0.4 + (stat.wrong / attempts) * 2 + stat.recentWrong * 1.2
+  if (!stat || stat.right + stat.wrong === 0) return UNSEEN_WEIGHT
+
+  const missed = 1 + stat.recentWrong * 6
+  const justMissed = stat.correctStreak === 0 ? 1.6 : 1
+  const mastery = Math.pow(0.5, stat.correctStreak)
+  return Math.max(MIN_WEIGHT, missed * justMissed * mastery)
 }
 
 export interface DeckSummary {

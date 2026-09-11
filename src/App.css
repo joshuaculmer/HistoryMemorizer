@@ -18,9 +18,9 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --right: #4ade80;
-    --right-bg: rgba(74, 222, 128, 0.14);
+    --right-bg: rgba(74, 222, 128, 0.16);
     --wrong: #f87171;
-    --wrong-bg: rgba(248, 113, 113, 0.14);
+    --wrong-bg: rgba(248, 113, 113, 0.16);
   }
 }
 
@@ -203,7 +203,7 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 1px;
-  opacity: 0.65;
+  color: var(--muted);
 }
 
 .prompt {
@@ -434,7 +434,7 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
-  background: #fbfaf7;
+  background: var(--paper);
 }
 
 .map-img {
@@ -483,7 +483,7 @@
   height: 9px;
   margin: -4.5px 0 0 -4.5px;
   border-radius: 50%;
-  background: #6d28d9;
+  background: #0047ba;
   opacity: 0.35;
   pointer-events: none;
 }
@@ -509,7 +509,7 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   background-repeat: no-repeat;
-  background-color: #fbfaf7;
+  background-color: var(--paper);
 }
 
 .loupe-pin {
@@ -560,7 +560,7 @@
   font-size: 10px;
   font-family: var(--mono);
   white-space: nowrap;
-  color: #6d28d9;
+  color: #0047ba;
   background: rgba(255, 255, 255, 0.9);
   padding: 1px 3px;
   border-radius: 3px;

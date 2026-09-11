@@ -1,15 +1,20 @@
+/* BYU palette: royal #0047ba, white #ffffff, navy #002e5d.
+   Accents: light blue #bdd6e6, blue #0072ce, blue grey #6e7ca0. */
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
+  --text: #5a6684;
+  --text-h: #002e5d;
+  --muted: #6e7ca0;
   --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  --border: #d5e1ec;
+  --code-bg: #edf3f9;
+  --accent: #0047ba;
+  --accent-bg: rgba(0, 71, 186, 0.08);
+  --accent-border: rgba(0, 71, 186, 0.42);
+  --paper: #f5f9fc;
+  --social-bg: rgba(237, 243, 249, 0.6);
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    rgba(0, 46, 93, 0.12) 0 10px 15px -3px, rgba(0, 46, 93, 0.06) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -30,19 +35,24 @@
   }
 }
 
+/* Dark mode sinks the page to a deep navy and hands the accent role to light
+   blue, since royal is too dark to read against it. */
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
+    --text: #a7b8d0;
+    --text-h: #ffffff;
+    --muted: #8fa3c0;
+    --bg: #071b30;
+    --border: #1b3a5c;
+    --code-bg: #0e2947;
+    --accent: #bdd6e6;
+    --accent-bg: rgba(189, 214, 230, 0.12);
+    --accent-border: rgba(189, 214, 230, 0.45);
+    --paper: #f5f9fc;
+    --social-bg: rgba(14, 41, 71, 0.5);
     --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+      rgba(0, 0, 0, 0.5) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
   }
 
   #social .button-icon {
