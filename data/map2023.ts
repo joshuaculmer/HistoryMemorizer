@@ -9,10 +9,9 @@ export const map2023: MapDeck = {
   id: "map-2023",
   title: "US Expansion Map",
   subtitle: "2023 Map Handout — the expansion of the United States, 1783-1853",
-  image: '/USA_map.png',
-  editImage: '/map2023.png',
+  image: "/USA_map.png",
+  editImage: "/map2023.png",
   pins: [
-    // Territorial acquisitions
     {
       id: "m-orcountry",
       category: "territory",
@@ -32,8 +31,8 @@ export const map2023: MapDeck = {
     {
       id: "m-mexcession",
       category: "territory",
-      x: 28,
-      y: 47,
+      x: 28.7,
+      y: 52.6,
       label: "Mexican Cession",
       aliases: ["Mexican Cession 1848", "Ceded by Mexico"],
     },
@@ -64,16 +63,16 @@ export const map2023: MapDeck = {
     {
       id: "m-florida",
       category: "territory",
-      x: 74,
-      y: 80,
+      x: 76.5,
+      y: 79.7,
       label: "Florida",
       aliases: ["Spanish Florida", "Florida 1810-1819"],
     },
     {
       id: "m-original",
       category: "territory",
-      x: 67,
-      y: 64,
+      x: 81,
+      y: 57.2,
       label: "Original United States",
       aliases: [
         "Original United States 1783",
@@ -109,8 +108,8 @@ export const map2023: MapDeck = {
       label: "Los Angeles",
     },
     { id: "m-sandiego", category: "city", x: 22.5, y: 65, label: "San Diego" },
-    { id: "m-phoenix", category: "city", x: 31, y: 65.5, label: "Phoenix" },
-    { id: "m-bisbee", category: "city", x: 33, y: 70, label: "Bisbee" },
+    { id: "m-phoenix", category: "city", x: 30.1, y: 65.8, label: "Phoenix" },
+    { id: "m-bisbee", category: "city", x: 33.1, y: 71.9, label: "Bisbee" },
     {
       id: "m-saltlake",
       category: "city",
@@ -129,10 +128,8 @@ export const map2023: MapDeck = {
       y: 53,
       label: "Kansas City",
     },
-    { id: "m-wichita", category: "city", x: 53, y: 55.5, label: "Wichita" },
-    { id: "m-chicago", category: "city", x: 64, y: 43.5, label: "Chicago" },
-
-    // Rivers
+    { id: "m-wichita", category: "city", x: 53.1, y: 56.5, label: "Wichita" },
+    { id: "m-chicago", category: "city", x: 65.1, y: 44.3, label: "Chicago" },
     {
       id: "m-columbia",
       category: "river",
@@ -184,24 +181,24 @@ export const map2023: MapDeck = {
     {
       id: "m-arkansas",
       category: "river",
-      x: 55,
-      y: 60,
+      x: 54.8,
+      y: 61.7,
       label: "Arkansas River",
       aliases: ["Arkansas"],
     },
     {
       id: "m-red",
       category: "river",
-      x: 59,
-      y: 71.5,
+      x: 59.2,
+      y: 73.2,
       label: "Red River",
       aliases: ["Red"],
     },
     {
       id: "m-sabine",
       category: "river",
-      x: 58.5,
-      y: 75,
+      x: 57.3,
+      y: 74.3,
       label: "Sabine River",
       aliases: ["Sabine"],
     },
@@ -240,8 +237,8 @@ export const map2023: MapDeck = {
     {
       id: "m-motherlode",
       category: "feature",
-      x: 18.5,
-      y: 44.5,
+      x: 19.8,
+      y: 46.9,
       label: "Gold Rush Mother Lode",
       aliases: ["Mother Lode", "Gold Rush"],
     },
@@ -256,8 +253,8 @@ export const map2023: MapDeck = {
     {
       id: "m-sandcreek",
       category: "feature",
-      x: 45,
-      y: 53,
+      x: 44,
+      y: 52.6,
       label: "Sand Creek",
     },
 
@@ -401,8 +398,8 @@ export const map2023: MapDeck = {
     {
       id: "m-ia",
       category: "state",
-      x: 58,
-      y: 42,
+      x: 58.5,
+      y: 45,
       label: "Iowa",
       aliases: ["IA"],
     },
@@ -425,8 +422,8 @@ export const map2023: MapDeck = {
     {
       id: "m-la",
       category: "state",
-      x: 59.5,
-      y: 74,
+      x: 60.2,
+      y: 76.7,
       label: "Louisiana",
       aliases: ["LA"],
     },
@@ -529,8 +526,8 @@ export const map2023: MapDeck = {
     {
       id: "m-il",
       category: "state",
-      x: 64,
-      y: 47.5,
+      x: 63.5,
+      y: 49.1,
       label: "Illinois",
       aliases: ["IL"],
     },
