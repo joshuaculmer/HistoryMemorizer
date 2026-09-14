@@ -33,7 +33,39 @@
 /* Header */
 
 .head {
+  position: relative;
   padding-top: 40px;
+}
+
+.gear {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.gear:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.gear svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
 }
 
 .head h1 {
@@ -715,4 +747,108 @@
   .prog-text { grid-area: text; }
   .prog-pct { grid-area: pct; }
   .bar { grid-area: bar; }
+}
+
+/* Delayed reveal */
+
+.hold {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  width: 100%;
+  padding: 28px;
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+  background: var(--paper);
+  box-sizing: border-box;
+}
+
+.hold-note {
+  font-size: 15px;
+  color: var(--text);
+}
+
+.hold-count {
+  font-family: var(--mono);
+  font-size: 19px;
+  color: var(--text-h);
+}
+
+/* Settings modal */
+
+.modal-back {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 46, 93, 0.45);
+}
+
+.modal {
+  width: 440px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 28px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  box-shadow: var(--shadow);
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.modal h2 {
+  margin: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.field-label {
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.field-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-input input {
+  font: inherit;
+  font-size: 16px;
+  font-family: var(--mono);
+  width: 80px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.field-input input:focus {
+  outline: none;
+  border-color: var(--accent-border);
+}
+
+.unit {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.field-note {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 140%;
 }

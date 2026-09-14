@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import type { PairDeck, PairItem } from '../types'
 import { getDeckStats, weightOf } from '../store'
-import { shuffle, weightedSample } from '../util'
+import { collides, shuffle, weightedSample } from '../util'
 
 interface Props {
   deck: PairDeck
@@ -11,7 +11,11 @@ interface Props {
 
 const ROUND_SIZE = 8
 
-/** Draws a round, holding back the items just played so a board doesn't repeat. */
+/**
+ * Draws a round, holding back the items just played so a board doesn't repeat.
+ * Overdraws and then skips any item that reads the same as one already kept,
+ * since two identical cells would make the board unanswerable.
+ */
 function buildRound(
   deck: PairDeck,
   focusMissed: boolean,
@@ -19,7 +23,15 @@ function buildRound(
 ): PairItem[] {
   const stats = focusMissed ? getDeckStats(deck.id) : null
   const weight = stats ? (item: PairItem) => weightOf(stats[item.id]) : () => 1
-  return weightedSample(deck.items, weight, recent, ROUND_SIZE)
+  const draw = weightedSample(deck.items, weight, recent, Math.min(deck.items.length, ROUND_SIZE * 3))
+
+  const round: PairItem[] = []
+  for (const item of draw) {
+    if (round.length === ROUND_SIZE) break
+    if (round.some((kept) => collides(kept, item))) continue
+    round.push(item)
+  }
+  return round
 }
 
 export function Matching({ deck, focusMissed, onScore }: Props) {

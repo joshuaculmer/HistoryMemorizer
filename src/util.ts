@@ -1,3 +1,5 @@
+import type { PairItem } from './types'
+
 export function shuffle<T>(input: readonly T[]): T[] {
   const out = input.slice()
   for (let i = out.length - 1; i > 0; i--) {
@@ -97,4 +99,12 @@ export function weightedSample<T extends { id: string }>(
     rest.splice(index, 1)
   }
   return out
+}
+
+/**
+ * True when two items would read the same on either side. Such a pair can't sit
+ * in one round, since either one would be a correct answer to the same prompt.
+ */
+export function collides(x: PairItem, y: PairItem): boolean {
+  return normalize(x.a) === normalize(y.a) || normalize(x.b) === normalize(y.b)
 }

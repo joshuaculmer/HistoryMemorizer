@@ -9,6 +9,8 @@ import { Timeline } from "./formats/Timeline";
 import { MapQuiz } from "./formats/MapQuiz";
 import { MapEditor } from "./formats/MapEditor";
 import { Progress } from "./components/Progress";
+import { SettingsModal } from "./components/Settings";
+import { readSettings, writeSettings, type Settings } from "./settings";
 
 type View = "quiz" | "progress" | "edit";
 
@@ -37,6 +39,14 @@ export default function App() {
     new Set(ALL_CATEGORIES),
   );
   const [session, setSession] = useState({ right: 0, wrong: 0 });
+  const [hideAnswers, setHideAnswers] = useState(false);
+  const [settings, setSettings] = useState<Settings>(readSettings);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const saveSettings = (next: Settings) => {
+    setSettings(next);
+    writeSettings(next);
+  };
 
   const onScore = useCallback(
     (itemId: string, correct: boolean) => {
@@ -73,6 +83,18 @@ export default function App() {
     return (
       <main className="shell">
         <header className="head">
+          <button
+            type="button"
+            className="gear"
+            onClick={() => setSettingsOpen(true)}
+            aria-label="Settings"
+            title="Settings"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.2" />
+              <path d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.5-2-3.4-2.4 1a7.7 7.7 0 0 0-1.7-1l-.4-2.6H10.9l-.4 2.6c-.6.2-1.2.6-1.7 1l-2.4-1-2 3.4L6.6 11a7.7 7.7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1c.5.4 1.1.8 1.7 1l.4 2.6h4l.4-2.6c.6-.2 1.2-.6 1.7-1l2.4 1 2-3.4z" />
+            </svg>
+          </button>
           <h1>HIST 220 Study</h1>
           <p className="sub">Pick a set of material.</p>
         </header>
@@ -97,6 +119,14 @@ export default function App() {
             );
           })}
         </div>
+
+        {settingsOpen && (
+          <SettingsModal
+            settings={settings}
+            onChange={saveSettings}
+            onClose={() => setSettingsOpen(false)}
+          />
+        )}
       </main>
     );
   }
@@ -104,6 +134,7 @@ export default function App() {
   const formats = formatsFor(deck);
   const active = formats.find((f) => f.id === format);
   const quizzing = view === "quiz";
+  const timed = active?.id === "mc-a-b" || active?.id === "mc-b-a";
 
   return (
     <main className="shell">
@@ -163,6 +194,17 @@ export default function App() {
               />
               Favor missed and new items
             </label>
+
+            {timed && (
+              <label className="toggle">
+                <input
+                  type="checkbox"
+                  checked={hideAnswers}
+                  onChange={(event) => setHideAnswers(event.target.checked)}
+                />
+                Hide answers for {settings.revealDelay}s
+              </label>
+            )}
 
             {deck.kind === "map" &&
               ALL_CATEGORIES.map((category) => (
@@ -235,6 +277,7 @@ export default function App() {
             deck={deck}
             direction={active.id === "mc-a-b" ? "a-b" : "b-a"}
             focusMissed={focusMissed}
+            revealAfter={hideAnswers ? settings.revealDelay : 0}
             onScore={onScore}
           />
         )
